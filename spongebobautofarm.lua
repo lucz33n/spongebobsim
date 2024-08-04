@@ -1,5 +1,5 @@
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
-local Window = Library.CreateLib("Spongebob Simulator Script by Z33N", "DarkTheme") -- for different colors, use these: "GrapeTheme" "DarkTheme" "LightTheme" "BloodTheme" "Ocean" "Midnight" "Sentinel" "Synapse" "Serpent"
+local Window = Library.CreateLib("Spongebob Simulator Script by Z33N", "DarkTheme")
 -- Autofarm
 local Autofarm = Window:NewTab("Autofarm")
 local AutofarmSection = Autofarm:NewSection("made with love by z33n")
@@ -221,6 +221,29 @@ end)
 AutoEggsSection:NewButton("Stop Auto Open", "Stop automatically opening eggs", function()
     autoOpenEggs = false 
     end)
+-- toggle the egg animation
+	
+getgenv().rewardScreenToggle = false
+
+local toggle = AutoEggsSection:NewToggle("Toggle RewardScreen", "Enables or disables the RewardScreen GUI", function(state)
+    getgenv().rewardScreenToggle = state
+    local player = game:GetService("Players").LocalPlayer
+    local rewardScreen = player.PlayerGui:FindFirstChild("RewardScreen")
+    
+    if rewardScreen then
+        rewardScreen.Enabled = getgenv().rewardScreenToggle
+    else
+        print("RewardScreen not found")
+    end
+end)
+
+game:GetService("RunService").RenderStepped:Connect(function()
+    if getgenv().rewardScreenToggle then
+        toggle:UpdateToggle("Toggle On")
+    else
+        toggle:UpdateToggle("Toggle Off")
+    end
+end)
 
 
 local Player = Window:NewTab("Player")
