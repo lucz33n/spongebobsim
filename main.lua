@@ -176,8 +176,9 @@ local quests = {
     ["Skeleton SpongeBob"] = "Programmables.Secrets.SkeletonSpongeBobQuest.Spawners",
     ["Knight SpongeBob"] = "Programmables.Secrets.KnightSpongeBobQuest.Spawners",
     ["King Neptune"] = "Programmables.Secrets.KingNeptuneQuest.Spawners",
-    ["GG Rock SpongeBob"] = "Programmables.Secrets.GGRockSpongeBobQuest",
-    ["Cowboy SpongeBob"] = "Programmables.Secrets.CowboySpongeBobQuest"
+    ["GG Rock SpongeBob"] = "Programmables.Secrets.GGRockSpongeBobQuest.Spawners",
+    ["Cowboy SpongeBob"] = "Programmables.Secrets.CowboySpongeBobQuest.Soawners"
+
 }
 
 -- Convert quest names to a list for the dropdown
