@@ -2,7 +2,7 @@ local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHept
 local Window = Library.CreateLib("Spongebob Simulator Script by Z33N", "DarkTheme")
 
 local Autofarm = Window:NewTab("Autofarm")
-local AutofarmSection = Autofarm:NewSection("Updated: 8/4 10:01")
+local AutofarmSection = Autofarm:NewSection("Updated: 8/4 10:03")
 
 
 
@@ -171,36 +171,41 @@ AutoPickupSection:NewButton("Stop AutoPickup", "Stop auto picking up closest cur
 end)
 
 -- area rewards
--- Define the quests and their corresponding paths
-local quests = {
-    ["Skeleton SpongeBob"] = "Programmables.Secrets.SkeletonSpongeBobQuest.Spawners",
-    ["Knight SpongeBob"] = "Programmables.Secrets.KnightSpongeBobQuest.Spawners",
-    ["King Neptune"] = "Programmables.Secrets.KingNeptuneQuest.Spawners",
-    ["GG Rock SpongeBob"] = "Programmables.Secrets.GGRockSpongeBobQuest",
-    ["Cowboy SpongeBob"] = "Programmables.Secrets.CowboySpongeBobQuest"
-}
-
--- Convert quest names to a list for the dropdown
-local questItems = {}
-for questName, _ in pairs(quests) do
-    table.insert(questItems, questName)
-end
-
--- UI setup
+-- area rewards
 local autoQuests = Window:NewTab("Auto Quests")
 local autoQuestsSection = autoQuests:NewSection("Will teleport to quest items.")
 
--- Variable to store the selected quest
-local selectedQuest = nil
+-- Define the quests and their corresponding paths
+local quests = {
+    ["Skeleton SpongeBob"] = {"Programmables", "Secrets", "SkeletonSpongeBobQuest", "Spawners"},
+    ["Knight SpongeBob"] = {"Programmables", "Secrets", "KnightSpongeBobQuest", "Spawners"},
+    ["King Neptune"] = {"Programmables", "Secrets", "KingNeptuneQuest", "Spawners"},
+    ["GG Rock SpongeBob"] = {"Programmables", "Secrets", "GGRockSpongeBobQuest", "Spawners"},
+    ["Cowboy SpongeBob"] = {"Programmables", "Secrets", "CowboySpongeBobQuest", "Spawners"}
+}
 
--- Dropdown to select the quest
-autoQuestsSection:NewDropdown("Select Quest", "Select the quest to farm.", questItems, function(currentOption)
-    selectedQuest = currentOption
-end)
+-- Function to get the folder from the path
+local function getFolderFromPath(pathArray)
+    local currentFolder = game:GetService("Workspace")
+    for _, folderName in ipairs(pathArray) do
+        currentFolder = currentFolder:FindFirstChild(folderName)
+        if not currentFolder then
+            return nil
+        end
+    end
+    return currentFolder
+end
+
+-- Function to make the character jump
+local function jumpCharacter(humanoid)
+    if humanoid then
+        humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+    end
+end
 
 -- Teleportation function
-local function teleportToSpawners()
-    if selectedQuest == nil then
+local function teleportToSpawners(selectedQuest)
+    if not selectedQuest then
         print("No quest selected!")
         return
     end
@@ -209,32 +214,55 @@ local function teleportToSpawners()
     local player = game.Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    local humanoid = character:FindFirstChild("Humanoid")
 
     -- Get the folder containing the Parts for the selected quest
     local questPath = quests[selectedQuest]
-    local spawnersFolder = game:GetService("Workspace"):FindFirstChild(questPath, true)
+    local spawnersFolder = getFolderFromPath(questPath)
 
     if not spawnersFolder then
-        print("Quest folder not found!")
+        print("Quest folder not found for: " .. selectedQuest)
         return
     end
+
+    print("Teleporting for quest: " .. selectedQuest)
 
     -- Loop through each Part in the folder
     for _, spawner in ipairs(spawnersFolder:GetChildren()) do
         if spawner:IsA("BasePart") then
             -- Teleport to the spawner
             humanoidRootPart.CFrame = spawner.CFrame
+            print("Teleported to: " .. spawner.Name)
+
+            -- Make the character jump
+            jumpCharacter(humanoid)
 
             -- Wait a short time before teleporting to the next spawner
             wait(1) -- Adjust this value as needed
         end
     end
-	print("Done!")
+
+    print("Teleportation complete for: " .. selectedQuest)
 end
 
--- Button to start the teleportation
+-- Create the dropdown
+local questItems = {}
+for questName, _ in pairs(quests) do
+    table.insert(questItems, questName)
+end
+
+local selected = nil
+autoQuestsSection:NewDropdown("Select Quest", "Select the quest to farm.", questItems, function(currentOption)
+    selected = currentOption
+end)
+
+-- Create the button
 autoQuestsSection:NewButton("Start Quest", "Collects all of the items for the selected quest.", function()
-    teleportToSpawners()
+    if selected then
+        teleportToSpawners(selected)
+    else
+        print("Please select a quest first!")
+    end
 end)
 
 
