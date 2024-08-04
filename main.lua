@@ -324,6 +324,7 @@ end)
 -- auto collection stuff
 local autoCollect = Window:NewTab("Auto Zone Collectables")
 local autoCollectSection = autoCollect:NewSection("Will teleport collectible ProximityCircles to player.")
+local autoCollectLabel = autoCollect:NewLabel("WIP: Not currently working as of now.")
 
 -- Create the button in your GUI
 local collectiblesButton = autoCollectSection:NewButton("Collect All Items", "Teleports all available ProximityCircles to the player", function()
