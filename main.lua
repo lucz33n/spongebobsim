@@ -2,7 +2,7 @@ local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHept
 local Window = Library.CreateLib("Spongebob Simulator Script by Z33N", "DarkTheme")
 
 local Autofarm = Window:NewTab("Autofarm")
-local AutofarmSection = Autofarm:NewSection("Updated: 8/4 10:22")
+local AutofarmSection = Autofarm:NewSection("Updated: 8/4 10:27")
 
 
 
@@ -170,6 +170,8 @@ AutoPickupSection:NewButton("Stop AutoPickup", "Stop auto picking up closest cur
     stopAutoPicking()
 end)
 
+local TweenService = game:GetService("TweenService")
+
 -- area rewards
 local autoQuests = Window:NewTab("Auto Quests")
 local autoQuestsSection = autoQuests:NewSection("Will teleport to quest items.")
@@ -195,11 +197,20 @@ local function getFolderFromPath(pathArray)
     return currentFolder
 end
 
--- Function to make the character jump
-local function jumpCharacter(humanoid)
-    if humanoid then
-        humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-    end
+-- Tween function
+local function tweenToSpawner(humanoidRootPart, spawnerCFrame)
+    local tweenInfo = TweenInfo.new(
+        1, -- Time
+        Enum.EasingStyle.Quad, -- Easing Style
+        Enum.EasingDirection.Out, -- Easing Direction
+        0, -- Repeat Count (0 means don't repeat)
+        false, -- Reverses?
+        0 -- Delay Time
+    )
+    
+    local tween = TweenService:Create(humanoidRootPart, tweenInfo, {CFrame = spawnerCFrame})
+    tween:Play()
+    tween.Completed:Wait() -- Wait for the tween to complete
 end
 
 -- Teleportation function
@@ -215,8 +226,13 @@ local function teleportToSpawners(selectedQuest)
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
     local humanoid = character:FindFirstChild("Humanoid")
 
-    -- Temporarily disable gravity
-    humanoidRootPart.Anchored = true
+    -- Store the original character state
+    local originalWalkSpeed = humanoid.WalkSpeed
+    local originalJumpPower = humanoid.JumpPower
+
+    -- Temporarily disable movement
+    humanoid.WalkSpeed = 0
+    humanoid.JumpPower = 0
 
     -- Get the folder containing the Parts for the selected quest
     local questPath = quests[selectedQuest]
@@ -224,8 +240,9 @@ local function teleportToSpawners(selectedQuest)
 
     if not spawnersFolder then
         print("Quest folder not found for: " .. selectedQuest)
-        -- Re-enable gravity
-        humanoidRootPart.Anchored = false
+        -- Restore original character state
+        humanoid.WalkSpeed = originalWalkSpeed
+        humanoid.JumpPower = originalJumpPower
         return
     end
 
@@ -234,22 +251,20 @@ local function teleportToSpawners(selectedQuest)
     -- Loop through each Part in the folder
     for _, spawner in ipairs(spawnersFolder:GetChildren()) do
         if spawner:IsA("BasePart") then
-            -- Teleport to the spawner
-            humanoidRootPart.CFrame = spawner.CFrame
-            print("Teleported to: " .. spawner.Name)
+            -- Tween to the spawner
+            tweenToSpawner(humanoidRootPart, spawner.CFrame)
+            print("Tweened to: " .. spawner.Name)
 
-            -- Make the character jump
-            jumpCharacter(humanoid)
-
-            -- Wait a short time before teleporting to the next spawner
-            wait(1) -- Adjust this value as needed
+            -- Wait a short time to ensure item pickup
+            wait(0.5) -- Adjust this value as needed
         end
     end
 
     print("Teleportation complete for: " .. selectedQuest)
 
-    -- Re-enable gravity
-    humanoidRootPart.Anchored = false
+    -- Restore original character state
+    humanoid.WalkSpeed = originalWalkSpeed
+    humanoid.JumpPower = originalJumpPower
 end
 
 -- Create the dropdown
