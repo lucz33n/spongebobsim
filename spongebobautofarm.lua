@@ -223,7 +223,7 @@ AutoEggsSection:NewButton("Stop Auto Open", "Stop automatically opening eggs", f
     end)
 	
 -- disable the egg animation
-AutoEggsSection:NewButton("Stop Auto Open", "Stop automatically opening eggs", function()
+AutoEggsSection:NewButton("Disable Egg Animation", "i wonder what this does 🤔", function()
     game:GetService("Players").LocalPlayer.PlayerGui.RewardScreen:Destroy() 
 end)
 
