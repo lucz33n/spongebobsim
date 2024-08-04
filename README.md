@@ -5,5 +5,5 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/lucz33n/spongebobsim/
 
 Beta Gui (MIGHT BE GLITCHY BUT MORE FEATURES):
 ```
-loadstring(game:HttpGet("https://raw.githubusercontent.com/lucz33n/spongebobsim/main/spongebobautofarm.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/lucz33n/spongebobsim/main/main.lua"))()
 ```
