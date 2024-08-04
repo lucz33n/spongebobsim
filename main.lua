@@ -176,9 +176,8 @@ local quests = {
     ["Skeleton SpongeBob"] = "Programmables.Secrets.SkeletonSpongeBobQuest.Spawners",
     ["Knight SpongeBob"] = "Programmables.Secrets.KnightSpongeBobQuest.Spawners",
     ["King Neptune"] = "Programmables.Secrets.KingNeptuneQuest.Spawners",
-    ["GG Rock SpongeBob"] = "Programmables.Secrets.GGRockSpongeBobQuest.Spawners",
-    ["Cowboy SpongeBob"] = "Programmables.Secrets.CowboySpongeBobQuest.Soawners"
-
+    ["GG Rock SpongeBob"] = "Programmables.Secrets.GGRockSpongeBobQuest",
+    ["Cowboy SpongeBob"] = "Programmables.Secrets.CowboySpongeBobQuest"
 }
 
 -- Convert quest names to a list for the dropdown
@@ -236,6 +235,14 @@ end
 autoQuestsSection:NewButton("Start Quest", "Collects all of the items for the selected quest.", function()
     teleportToSpawners()
 end)
+
+
+
+
+-- eggs stuff
+local AutoEggsSection = Window:NewTab("Auto Eggs")
+local AutoEggsSection = AutoEggsSection:NewSection("Will update most likely each new area")
+
 -- Create dropdown options for eggs
 local eggOptions = {}
 for i = 1, 63 do
