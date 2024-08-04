@@ -322,6 +322,56 @@ autoQuestsSection:NewButton("Start Quest", "Collects all of the items for the se
 end)
 
 
+-- Create the button in your GUI
+local collectiblesButton = autoQuestsSection:NewButton("Collect All Items", "Collects all available items in the current zone", function()
+    collectAllItems()
+end)
+
+-- Function to collect all items
+function collectAllItems()
+    local collectiblesFolder = game:GetService("Workspace").Programmables.Collectibles
+    
+    -- Check if the folder exists
+    if not collectiblesFolder then
+        print("Collectibles folder not found!")
+        return
+    end
+    
+    -- Iterate through all zones (assuming the structure is Collectibles > Zone > Area > Items)
+    for _, zone in pairs(collectiblesFolder:GetChildren()) do
+        if zone:IsA("Folder") then
+            for _, area in pairs(zone:GetChildren()) do
+                if area:IsA("Folder") then
+                    for _, item in pairs(area:GetChildren()) do
+                        if item:IsA("BasePart") then
+                            -- Attempt to collect the item
+                            local args = {
+                                [1] = item.Name
+                            }
+                            
+                            local success, result = pcall(function()
+                                return game:GetService("ReplicatedStorage").Knit.Services.CollectibleService.RF.CollectAttempt:InvokeServer(unpack(args))
+                            end)
+                            
+                            if success then
+                                print("Collected: " .. item.Name)
+                            else
+                                print("Failed to collect: " .. item.Name)
+                            end
+                            
+                            -- Small wait to prevent overloading the server
+                            wait(0.1)
+                        end
+                    end
+                end
+            end
+        end
+    end
+    
+    print("Finished collecting all available items!")
+end
+
+
 
 
 
