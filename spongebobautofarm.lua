@@ -4,7 +4,7 @@ local Window = Library.CreateLib("Spongebob Simulator Script by Z33N ( F to Togg
 local Autofarm = Window:NewTab("Autofarm")
 local AutofarmSection = Autofarm:NewSection("Updated: 8/4 12:43")
 
-Library:NewKeybind("KeybindText", "KeybindInfo", Enum.KeyCode.F, function()
+AutopFarm:NewKeybind("KeybindText", "KeybindInfo", Enum.KeyCode.F, function()
 	Library:ToggleUI()
 end)
 
