@@ -2,9 +2,9 @@ local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHept
 local Window = Library.CreateLib("Spongebob Simulator Script by Z33N ( F to Toggle )", "DarkTheme")
 
 local Autofarm = Window:NewTab("Autofarm")
-local AutofarmSection = Autofarm:NewSection("Updated: 8/4 12:35")
+local AutofarmSection = Autofarm:NewSection("Updated: 8/4 12:43")
 
-Window:NewKeybind("KeybindText", "KeybindInfo", Enum.KeyCode.F, function()
+Library:NewKeybind("KeybindText", "KeybindInfo", Enum.KeyCode.F, function()
 	Library:ToggleUI()
 end)
 
@@ -12,17 +12,16 @@ end)
 local clicking = false
 local teleporting = false
 
--- path to the Nodes container
+
 local nodesContainer = game.Workspace:WaitForChild("Nodes")
 local radius = 200
 
--- function to find the closest node within the specified radius
 local function getClosestNode()
     local character = game.Players.LocalPlayer.Character
     if not character or not character:FindFirstChild("HumanoidRootPart") then return nil end
 
     local closestNode = nil
-    local shortestDistance = radius -- initialize to the search radius
+    local shortestDistance = radiuss
 
     for _, node in ipairs(nodesContainer:GetChildren()) do
         if node:IsA("Part") then
@@ -37,7 +36,7 @@ local function getClosestNode()
     return closestNode
 end
 
--- function to click a node
+
 local function clickNode(node)
     local args = {
         [1] = node,
@@ -48,7 +47,7 @@ local function clickNode(node)
     game:GetService("ReplicatedStorage"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("NodeService"):WaitForChild("RE"):WaitForChild("NodeClicked"):FireServer(unpack(args))
 end
 
--- Function to start the clicking loop
+
 local function startClicking()
     clicking = true
     while clicking do
@@ -56,18 +55,17 @@ local function startClicking()
 
         if closestNode then
             clickNode(closestNode)
-            -- Wait until the node is destroyed
             repeat
                 wait(0.1)
             until not closestNode.Parent or not clicking
-            wait(0.1) -- optional: Wait a short delay before targeting the next node
+            wait(0.1) 
         else
-            wait(0.5) -- Check again after a short delay if no node found within radius
+            wait(0.5) 
         end
     end
 end
 
--- Function to stop the clicking loop
+
 local function stopClicking()
     clicking = false
 end
@@ -137,7 +135,7 @@ local function tweenToPosition(targetPosition)
     tween.Completed:Wait()
 end
 
--- Function to start the auto picking loop
+-- auto pickup func
 local function startAutoPicking()
     autoPicking = true
     while autoPicking do
@@ -145,18 +143,18 @@ local function startAutoPicking()
 
         if closestAttachment then
             tweenToPosition(closestAttachment.WorldPosition)
-            wait(0.1) -- Adjust the delay if necessary
+            wait(0.1) 
         end
-        wait(0.1) -- Adjust this delay if necessary
+        wait(0.1) 
     end
 end
 
--- Function to stop the auto picking loop
+-- stop pickup
 local function stopAutoPicking()
     autoPicking = false
 end
 
--- Create UI elements for the AutoPickup section
+-- autopickup
 AutoPickupSection:NewSlider("Tween Speed", "Adjust the tween speed", 200, 1, function(value)
     tweenSpeed = value
 end)
@@ -174,98 +172,7 @@ AutoPickupSection:NewButton("Stop AutoPickup", "Stop auto picking up closest cur
 end)
 
 
-
-
-local TweenService = game:GetService("TweenService")
-
--- Create the GUI elements
-local autoRewards = Window:NewTab("Auto Rewards")
-local autoRewardsSection = autoRewards:NewSection("Teleport to zone collectables.")
-
--- List of zones
-local zones = {}
-for i = 1, 14 do
-    table.insert(zones, "Zone" .. i)
-end
-
-local selectedZone = nil
-
--- Create the dropdown
-local zoneDropdown = autoRewardsSection:NewDropdown("Select Zone", "Select the zone to collect items from.", zones, function(value)
-    selectedZone = value
-end)
-
--- Function to collect all items in the selected zone
-local function collectItemsInZone()
-    if not selectedZone then
-        print("No zone selected!")
-        return
-    end
-
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    local humanoid = character:FindFirstChild("Humanoid")
-
-    -- Anchor the character
-    humanoidRootPart.Anchored = true
-
-    -- Get the selected zone folder
-    local zoneFolder = game:GetService("Workspace").Programmables.Collectibles:FindFirstChild(selectedZone)
-    
-    -- Check if the folder exists
-    if not zoneFolder then
-        print("Selected zone folder not found!")
-        humanoidRootPart.Anchored = false
-        return
-    end
-    
-    -- Function to gather all parts in the zone folder into a list
-    local function gatherAllParts(folder)
-        local partsList = {}
-        
-        for _, item in pairs(folder:GetDescendants()) do
-            if item:IsA("BasePart") then
-                table.insert(partsList, item)
-            end
-        end
-        
-        return partsList
-    end
-
-    -- Function to teleport to all parts in the list
-    local function teleportToParts(partsList)
-        for _, part in pairs(partsList) do
-            -- Teleport to the part
-            humanoidRootPart.CFrame = part.CFrame
-            
-            print("Teleported to: " .. part:GetFullName())
-            
-            -- Wait for 0.3 seconds before next teleport
-            wait(0.3)
-        end
-    end
-
-    print("Gathering all parts in the selected zone folder...")
-    local partsList = gatherAllParts(zoneFolder)
-    print("Total parts found: " .. #partsList)
-    
-    print("Starting teleportation to all parts...")
-    teleportToParts(partsList)
-    print("Finished teleporting to all parts!")
-
-    -- Unanchor the character
-    humanoidRootPart.Anchored = false
-end
-
--- Create the button
-autoRewardsSection:NewButton("Collect", "Collects all of the items in the selected zone.", function()
-    collectItemsInZone()
-end)
-
-
-
-
+-----------------------------------------------------------------------
 
 
 local TweenService = game:GetService("TweenService")
@@ -296,11 +203,11 @@ local function getFolderFromPath(pathArray)
     return currentFolder
 end
 
--- tween (with temporary y unlock)
+-- tween (i love tweens)
 local function tweenToSpawner(humanoidRootPart, spawnerCFrame)
     local tweenInfo = TweenInfo.new(
-        0.5, -- Reduced time for faster movement
-        Enum.EasingStyle.Linear, -- Changed to Linear for smoother motion
+        0.5, 
+        Enum.EasingStyle.Linear, -- LINEAR MOTION LETS GOOO
         Enum.EasingDirection.Out
     )
     
@@ -312,7 +219,7 @@ end
 -- tiny move plzzzz
 local function smallMovementFixedY(humanoidRootPart, fixedY)
     local center = humanoidRootPart.Position
-    local radius = 0.3 -- Reduced radius for subtler movement
+    local radius = 0.3 -- movement radiussss
     local directions = {
         Vector3.new(1, 0, 0),
         Vector3.new(-1, 0, 0),
@@ -416,7 +323,7 @@ end)
 local AutoEggsSection = Window:NewTab("Auto Eggs")
 local AutoEggsSection = AutoEggsSection:NewSection("Will update most likely each new area")
 
--- Create dropdown options for eggs
+-- dropdown
 local eggOptions = {}
 for i = 1, 63 do
 	table.insert(eggOptions, "meme buddies")
@@ -427,7 +334,7 @@ end
 local selectedEgg
 local autoOpenEggs = false
 
--- Function to open eggs
+-- open eggz
 local function openEgg(egg)
     local args = {
         [1] = egg,
@@ -436,7 +343,7 @@ local function openEgg(egg)
     game:GetService("ReplicatedStorage"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ClamService"):WaitForChild("RF"):WaitForChild("Purchase"):InvokeServer(unpack(args))
 end
 
--- Function to start auto opening eggs
+-- start egg open
 local function startAutoOpen()
     while autoOpenEggs do
         openEgg(selectedEgg)
@@ -444,13 +351,13 @@ local function startAutoOpen()
     end
 end
 
--- Dropdown for selecting egg
+--dropdown
 AutoEggsSection:NewDropdown("Select Egg", "Select the egg to open", eggOptions, function(currentOption)
     selectedEgg = currentOption
     print("Selected Egg: " .. selectedEgg)
 end)
 
--- Button to start auto opening eggs
+-- auto egg
 AutoEggsSection:NewButton("Start Auto Open", "Start automatically opening the selected egg", function()
     if selectedEgg then
         autoOpenEggs = true
@@ -460,7 +367,7 @@ AutoEggsSection:NewButton("Start Auto Open", "Start automatically opening the se
     end
 end)
 
--- Button to stop auto opening eggs
+-- stop egg
 AutoEggsSection:NewButton("Stop Auto Open", "Stop automatically opening eggs", function()
     autoOpenEggs = false 
     end)
@@ -474,7 +381,7 @@ end)
 local Player = Window:NewTab("Player")
 local PlayerSection = Player:NewSection("freakybob is behind you")
 
--- WalkSpeed and JumpPower sliders
+-- speed/jump
 PlayerSection:NewSlider("WalkSpeed", "Adjust the WalkSpeed", 200, 16, function(value)
     game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = value
 end)
@@ -482,7 +389,7 @@ end)
 PlayerSection:NewSlider("JumpPower", "Adjust the JumpPower", 200, 50, function(value)
     game.Players.LocalPlayer.Character.Humanoid.JumpPower = value
 end)
-
+-- inf yield
 PlayerSection:NewButton("Infinite Yield (Admin Commands)", "gives you admin commands", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
 end)
