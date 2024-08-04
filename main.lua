@@ -2,7 +2,7 @@ local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHept
 local Window = Library.CreateLib("Spongebob Simulator Script by Z33N", "DarkTheme")
 
 local Autofarm = Window:NewTab("Autofarm")
-local AutofarmSection = Autofarm:NewSection("Updated: 8/4 11:18")
+local AutofarmSection = Autofarm:NewSection("Updated: 8/4 11:20")
 
 
 
@@ -326,12 +326,12 @@ local autoCollect = Window:NewTab("Auto Zone Collectables")
 local autoCollectSection = autoCollect:NewSection("Will teleport to zone collectables.")
 
 -- Create the button in your GUI
-local collectiblesButton = autoCollect:NewButton("Collect All Items", "Teleports to all available items in the current zone", function()
-    collectAlldeItems()
+local collectiblesButton = autoCollectSection:NewButton("Collect All Items", "Teleports to all available items in the current zone", function()
+    collectAllItems()
 end)
 
 -- Function to collect all items
-function collectAlldeItems()
+function collectAllItems()
     local player = game.Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
@@ -373,7 +373,6 @@ function collectAlldeItems()
     
     print("Finished teleporting to all available items!")
 end
-
 
 
 
