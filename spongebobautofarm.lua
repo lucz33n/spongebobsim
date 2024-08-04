@@ -221,28 +221,10 @@ end)
 AutoEggsSection:NewButton("Stop Auto Open", "Stop automatically opening eggs", function()
     autoOpenEggs = false 
     end)
--- toggle the egg animation
 	
-getgenv().rewardScreenToggle = false
-
-local toggle = AutoEggsSection:NewToggle("Toggle RewardScreen", "Enables or disables the RewardScreen GUI", function(state)
-    getgenv().rewardScreenToggle = state
-    local player = game:GetService("Players").LocalPlayer
-    local rewardScreen = player.PlayerGui:FindFirstChild("RewardScreen")
-    
-    if rewardScreen then
-        rewardScreen.Enabled = getgenv().rewardScreenToggle
-    else
-        print("RewardScreen not found")
-    end
-end)
-
-game:GetService("RunService").RenderStepped:Connect(function()
-    if getgenv().rewardScreenToggle then
-        toggle:UpdateToggle("Toggle On")
-    else
-        toggle:UpdateToggle("Toggle Off")
-    end
+-- disable the egg animation
+AutoEggsSection:NewButton("Stop Auto Open", "Stop automatically opening eggs", function()
+    game:GetService("Players").LocalPlayer.PlayerGui.RewardScreen:Destroy() 
 end)
 
 
