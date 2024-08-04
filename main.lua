@@ -2,7 +2,7 @@ local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHept
 local Window = Library.CreateLib("Spongebob Simulator Script by Z33N", "DarkTheme")
 
 local Autofarm = Window:NewTab("Autofarm")
-local AutofarmSection = Autofarm:NewSection("Updated: 8/4 9:53")
+local AutofarmSection = Autofarm:NewSection("Updated: 8/4 10:01")
 
 
 
@@ -226,9 +226,10 @@ local function teleportToSpawners()
             humanoidRootPart.CFrame = spawner.CFrame
 
             -- Wait a short time before teleporting to the next spawner
-            wait(0.5) -- Adjust this value as needed
+            wait(1) -- Adjust this value as needed
         end
     end
+	print("Done!")
 end
 
 -- Button to start the teleportation
