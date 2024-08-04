@@ -2,7 +2,7 @@ local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHept
 local Window = Library.CreateLib("Spongebob Simulator Script by Z33N", "DarkTheme")
 
 local Autofarm = Window:NewTab("Autofarm")
-local AutofarmSection = Autofarm:NewSection("Updated: 8/4 10:27")
+local AutofarmSection = Autofarm:NewSection("Updated: 8/4 10:30")
 
 
 
@@ -197,20 +197,39 @@ local function getFolderFromPath(pathArray)
     return currentFolder
 end
 
--- Tween function
-local function tweenToSpawner(humanoidRootPart, spawnerCFrame)
+-- Tween function with fixed Y
+local function tweenToSpawnerFixedY(humanoidRootPart, spawnerCFrame, fixedY)
+    local targetPosition = spawnerCFrame.Position
+    local targetCFrame = CFrame.new(targetPosition.X, fixedY, targetPosition.Z)
+    
     local tweenInfo = TweenInfo.new(
         1, -- Time
         Enum.EasingStyle.Quad, -- Easing Style
-        Enum.EasingDirection.Out, -- Easing Direction
-        0, -- Repeat Count (0 means don't repeat)
-        false, -- Reverses?
-        0 -- Delay Time
+        Enum.EasingDirection.Out -- Easing Direction
     )
     
-    local tween = TweenService:Create(humanoidRootPart, tweenInfo, {CFrame = spawnerCFrame})
+    local tween = TweenService:Create(humanoidRootPart, tweenInfo, {CFrame = targetCFrame})
     tween:Play()
     tween.Completed:Wait() -- Wait for the tween to complete
+end
+
+-- Function to perform a small circular movement with fixed Y
+local function smallCircularMovementFixedY(humanoidRootPart, fixedY)
+    local center = humanoidRootPart.Position
+    local radius = 0.5 -- Adjust this value to change the size of the circle
+    local steps = 8 -- Number of points in the circle
+    
+    for i = 1, steps do
+        local angle = (i / steps) * math.pi * 2
+        local offset = Vector3.new(math.cos(angle) * radius, 0, math.sin(angle) * radius)
+        local newPosition = center + offset
+        newPosition = Vector3.new(newPosition.X, fixedY, newPosition.Z)
+        
+        local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Linear)
+        local tween = TweenService:Create(humanoidRootPart, tweenInfo, {CFrame = CFrame.new(newPosition, Vector3.new(center.X, fixedY, center.Z))})
+        tween:Play()
+        tween.Completed:Wait()
+    end
 end
 
 -- Teleportation function
@@ -229,6 +248,7 @@ local function teleportToSpawners(selectedQuest)
     -- Store the original character state
     local originalWalkSpeed = humanoid.WalkSpeed
     local originalJumpPower = humanoid.JumpPower
+    local fixedY = humanoidRootPart.Position.Y -- Store the initial Y position
 
     -- Temporarily disable movement
     humanoid.WalkSpeed = 0
@@ -251,12 +271,15 @@ local function teleportToSpawners(selectedQuest)
     -- Loop through each Part in the folder
     for _, spawner in ipairs(spawnersFolder:GetChildren()) do
         if spawner:IsA("BasePart") then
-            -- Tween to the spawner
-            tweenToSpawner(humanoidRootPart, spawner.CFrame)
+            -- Tween to the spawner with fixed Y
+            tweenToSpawnerFixedY(humanoidRootPart, spawner.CFrame, fixedY)
             print("Tweened to: " .. spawner.Name)
 
+            -- Perform small circular movement with fixed Y
+            smallCircularMovementFixedY(humanoidRootPart, fixedY)
+
             -- Wait a short time to ensure item pickup
-            wait(0.5) -- Adjust this value as needed
+            wait(0.2) -- Adjust this value as needed
         end
     end
 
@@ -286,6 +309,12 @@ autoQuestsSection:NewButton("Start Quest", "Collects all of the items for the se
         print("Please select a quest first!")
     end
 end)
+
+
+
+
+
+
 
 
 
