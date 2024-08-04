@@ -2,7 +2,7 @@ local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHept
 local Window = Library.CreateLib("Spongebob Simulator Script by Z33N", "DarkTheme")
 
 local Autofarm = Window:NewTab("Autofarm")
-local AutofarmSection = Autofarm:NewSection("Updated: 8/4 11:20")
+local AutofarmSection = Autofarm:NewSection("Updated: 8/4 11:40")
 
 
 
@@ -323,10 +323,10 @@ end)
 
 -- auto collection stuff
 local autoCollect = Window:NewTab("Auto Zone Collectables")
-local autoCollectSection = autoCollect:NewSection("Will teleport to zone collectables.")
+local autoCollectSection = autoCollect:NewSection("Will teleport collectible ProximityCircles to player.")
 
 -- Create the button in your GUI
-local collectiblesButton = autoCollectSection:NewButton("Collect All Items", "Teleports to all available items in the current zone", function()
+local collectiblesButton = autoCollectSection:NewButton("Collect All Items", "Teleports all available ProximityCircles to the player", function()
     collectAllItems()
 end)
 
@@ -336,6 +336,7 @@ function collectAllItems()
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
     
+    -- Reload the collectibles folder each time the function is called
     local collectiblesFolder = game:GetService("Workspace").Programmables.Collectibles
     
     -- Check if the folder exists
@@ -347,20 +348,29 @@ function collectAllItems()
     -- Store original CFrame to return to later
     local originalCFrame = humanoidRootPart.CFrame
     
+    local teleportedCount = 0
+    
     -- Iterate through all zones (assuming the structure is Collectibles > Zone > Area > Items)
     for _, zone in pairs(collectiblesFolder:GetChildren()) do
         if zone:IsA("Folder") then
             for _, area in pairs(zone:GetChildren()) do
                 if area:IsA("Folder") then
                     for _, item in pairs(area:GetChildren()) do
-                        if item:IsA("BasePart") then
-                            -- Teleport to the item
-                            humanoidRootPart.CFrame = item.CFrame
+                        if item:IsA("Model") then
+                            -- Look for the ProximityCircle
+                            local proximityCircle = item:FindFirstChild("CollectiblePedestal", true) and 
+                                                    item.CollectiblePedestal:FindFirstChild("ProximityCircle")
                             
-                            print("Teleported to: " .. item.Name)
-                            
-                            -- Wait for 0.8 seconds before next teleport
-                            wait(0.8)
+                            if proximityCircle and proximityCircle:IsA("BasePart") then
+                                -- Teleport the ProximityCircle to the player
+                                proximityCircle.CFrame = humanoidRootPart.CFrame
+                                
+                                print("Teleported ProximityCircle of: " .. item.Name .. " to player")
+                                teleportedCount = teleportedCount + 1
+                                
+                                -- Wait for 0.1 seconds before next teleport
+                                wait(0.1)
+                            end
                         end
                     end
                 end
@@ -368,10 +378,7 @@ function collectAllItems()
         end
     end
     
-    -- Return to original position
-    humanoidRootPart.CFrame = originalCFrame
-    
-    print("Finished teleporting to all available items!")
+    print("Finished teleporting " .. teleportedCount .. " ProximityCircles to the player!")
 end
 
 
