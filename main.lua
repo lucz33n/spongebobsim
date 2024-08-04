@@ -176,7 +176,7 @@ local TweenService = game:GetService("TweenService")
 local autoQuests = Window:NewTab("Auto Quests")
 local autoQuestsSection = autoQuests:NewSection("Will teleport to quest items.")
 
--- Define the quests and their corresponding paths
+-- quest pathz
 local quests = {
     ["Skeleton SpongeBob"] = {"Programmables", "Secrets", "SkeletonSpongeBobQuest", "Spawners"},
     ["Knight SpongeBob"] = {"Programmables", "Secrets", "KnightSpongeBobQuest", "Spawners"},
@@ -185,7 +185,7 @@ local quests = {
     ["Cowboy SpongeBob"] = {"Programmables", "Secrets", "CowboySpongeBobQuest", "Spawners"}
 }
 
--- Function to get the folder from the path
+-- get foldr
 local function getFolderFromPath(pathArray)
     local currentFolder = game:GetService("Workspace")
     for _, folderName in ipairs(pathArray) do
@@ -197,70 +197,73 @@ local function getFolderFromPath(pathArray)
     return currentFolder
 end
 
--- Tween function with fixed Y
+-- tween (with working y lock)
 local function tweenToSpawnerFixedY(humanoidRootPart, spawnerCFrame, fixedY)
     local targetPosition = spawnerCFrame.Position
     local targetCFrame = CFrame.new(targetPosition.X, fixedY, targetPosition.Z)
     
     local tweenInfo = TweenInfo.new(
-        1, -- Time
-        Enum.EasingStyle.Quad, -- Easing Style
-        Enum.EasingDirection.Out -- Easing Direction
+        0.5, -- Reduced time for faster movement
+        Enum.EasingStyle.Linear, -- Changed to Linear for smoother motion
+        Enum.EasingDirection.Out
     )
     
     local tween = TweenService:Create(humanoidRootPart, tweenInfo, {CFrame = targetCFrame})
     tween:Play()
-    tween.Completed:Wait() -- Wait for the tween to complete
+    tween.Completed:Wait() -- yay
 end
 
--- Function to perform a small circular movement with fixed Y
-local function smallCircularMovementFixedY(humanoidRootPart, fixedY)
+-- tiny move plzzzz
+local function smallMovementFixedY(humanoidRootPart, fixedY)
     local center = humanoidRootPart.Position
-    local radius = 0.5 -- Adjust this value to change the size of the circle
-    local steps = 8 -- Number of points in the circle
+    local radius = 0.3 -- Reduced radius for subtler movement
+    local directions = {
+        Vector3.new(1, 0, 0),
+        Vector3.new(-1, 0, 0),
+        Vector3.new(0, 0, 1),
+        Vector3.new(0, 0, -1)
+    }
     
-    for i = 1, steps do
-        local angle = (i / steps) * math.pi * 2
-        local offset = Vector3.new(math.cos(angle) * radius, 0, math.sin(angle) * radius)
-        local newPosition = center + offset
+    for _, direction in ipairs(directions) do
+        local newPosition = center + direction * radius
         newPosition = Vector3.new(newPosition.X, fixedY, newPosition.Z)
         
         local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Linear)
-        local tween = TweenService:Create(humanoidRootPart, tweenInfo, {CFrame = CFrame.new(newPosition, Vector3.new(center.X, fixedY, center.Z))})
+        local tween = TweenService:Create(humanoidRootPart, tweenInfo, {CFrame = CFrame.new(newPosition)})
         tween:Play()
         tween.Completed:Wait()
     end
 end
 
--- Teleportation function
+-- tele func
 local function teleportToSpawners(selectedQuest)
     if not selectedQuest then
         print("No quest selected!")
         return
     end
 
-    -- Get the player's character
+    -- get char
     local player = game.Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
     local humanoid = character:FindFirstChild("Humanoid")
 
-    -- Store the original character state
+    -- store state
     local originalWalkSpeed = humanoid.WalkSpeed
     local originalJumpPower = humanoid.JumpPower
-    local fixedY = humanoidRootPart.Position.Y -- Store the initial Y position
+    local fixedY = humanoidRootPart.Position.Y + 1 -- Store the initial Y position, slightly elevated
 
-    -- Temporarily disable movement
+    -- disable movement (for the noobz)
     humanoid.WalkSpeed = 0
     humanoid.JumpPower = 0
 
-    -- Get the folder containing the Parts for the selected quest
+    -- get folder w/ parts
     local questPath = quests[selectedQuest]
     local spawnersFolder = getFolderFromPath(questPath)
 
     if not spawnersFolder then
         print("Quest folder not found for: " .. selectedQuest)
-        -- Restore original character state
+        --restore char state
         humanoid.WalkSpeed = originalWalkSpeed
         humanoid.JumpPower = originalJumpPower
         return
@@ -268,29 +271,29 @@ local function teleportToSpawners(selectedQuest)
 
     print("Teleporting for quest: " .. selectedQuest)
 
-    -- Loop through each Part in the folder
+    --loop folder
     for _, spawner in ipairs(spawnersFolder:GetChildren()) do
         if spawner:IsA("BasePart") then
-            -- Tween to the spawner with fixed Y
+            -- tween (🤤)
             tweenToSpawnerFixedY(humanoidRootPart, spawner.CFrame, fixedY)
             print("Tweened to: " .. spawner.Name)
 
-            -- Perform small circular movement with fixed Y
-            smallCircularMovementFixedY(humanoidRootPart, fixedY)
+            -- run this thingy
+            smallMovementFixedY(humanoidRootPart, fixedY)
 
-            -- Wait a short time to ensure item pickup
-            wait(0.2) -- Adjust this value as needed
+            -- then wait lets gooo
+            wait(0.1) 
         end
     end
 
     print("Teleportation complete for: " .. selectedQuest)
 
-    -- Restore original character state
+    -- restore walking
     humanoid.WalkSpeed = originalWalkSpeed
     humanoid.JumpPower = originalJumpPower
 end
 
--- Create the dropdown
+-- dropdwn
 local questItems = {}
 for questName, _ in pairs(quests) do
     table.insert(questItems, questName)
@@ -301,7 +304,7 @@ autoQuestsSection:NewDropdown("Select Quest", "Select the quest to farm.", quest
     selected = currentOption
 end)
 
--- Create the button
+-- buttin
 autoQuestsSection:NewButton("Start Quest", "Collects all of the items for the selected quest.", function()
     if selected then
         teleportToSpawners(selected)
