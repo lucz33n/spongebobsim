@@ -177,6 +177,7 @@ local AutoEggsSection = AutoEggsSection:NewSection("Will update most likely each
 -- Create dropdown options for eggs
 local eggOptions = {}
 for i = 1, 63 do
+	table.insert(eggOptions, "meme buddies")
     table.insert(eggOptions, "area" .. i .. " basic")
     table.insert(eggOptions, "area" .. i .. " golden")
 end
