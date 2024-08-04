@@ -2,7 +2,7 @@ local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHept
 local Window = Library.CreateLib("Spongebob Simulator Script by Z33N", "DarkTheme")
 
 local Autofarm = Window:NewTab("Autofarm")
-local AutofarmSection = Autofarm:NewSection("Updated: 8/4 10:40")
+local AutofarmSection = Autofarm:NewSection("Updated: 8/4 10:44")
 
 
 
@@ -170,6 +170,16 @@ AutoPickupSection:NewButton("Stop AutoPickup", "Stop auto picking up closest cur
     stopAutoPicking()
 end)
 
+
+
+
+
+
+
+
+
+
+
 local TweenService = game:GetService("TweenService")
 
 -- area rewards
@@ -197,18 +207,15 @@ local function getFolderFromPath(pathArray)
     return currentFolder
 end
 
--- tween (with working y lock)
-local function tweenToSpawnerFixedY(humanoidRootPart, spawnerCFrame, fixedY)
-    local targetPosition = spawnerCFrame.Position
-    local targetCFrame = CFrame.new(targetPosition.X, fixedY, targetPosition.Z)
-    
+-- tween (with temporary y unlock)
+local function tweenToSpawner(humanoidRootPart, spawnerCFrame)
     local tweenInfo = TweenInfo.new(
         0.5, -- Reduced time for faster movement
         Enum.EasingStyle.Linear, -- Changed to Linear for smoother motion
         Enum.EasingDirection.Out
     )
     
-    local tween = TweenService:Create(humanoidRootPart, tweenInfo, {CFrame = targetCFrame})
+    local tween = TweenService:Create(humanoidRootPart, tweenInfo, {CFrame = spawnerCFrame})
     tween:Play()
     tween.Completed:Wait() -- yay
 end
@@ -251,7 +258,6 @@ local function teleportToSpawners(selectedQuest)
     -- store state
     local originalWalkSpeed = humanoid.WalkSpeed
     local originalJumpPower = humanoid.JumpPower
-    local fixedY = humanoidRootPart.Position.Y + 1 -- Store the initial Y position, slightly elevated
 
     -- disable movement (for the noobz)
     humanoid.WalkSpeed = 0
@@ -274,10 +280,12 @@ local function teleportToSpawners(selectedQuest)
     --loop folder
     for _, spawner in ipairs(spawnersFolder:GetChildren()) do
         if spawner:IsA("BasePart") then
-            -- tween (🤤)
-            tweenToSpawnerFixedY(humanoidRootPart, spawner.CFrame, fixedY)
+            -- tween (🤤) with Y unlocked
+            tweenToSpawner(humanoidRootPart, spawner.CFrame)
             print("Tweened to: " .. spawner.Name)
 
+            -- Lock Y for small movements
+            local fixedY = humanoidRootPart.Position.Y
             -- run this thingy
             smallMovementFixedY(humanoidRootPart, fixedY)
 
