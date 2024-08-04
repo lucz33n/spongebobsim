@@ -1,9 +1,12 @@
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
-local Window = Library.CreateLib("Spongebob Simulator Script by Z33N", "DarkTheme")
+local Window = Library.CreateLib("Spongebob Simulator Script by Z33N ( F to Toggle )", "DarkTheme")
 
 local Autofarm = Window:NewTab("Autofarm")
 local AutofarmSection = Autofarm:NewSection("Updated: 8/4 12:35")
 
+Window:NewKeybind("KeybindText", "KeybindInfo", Enum.KeyCode.F, function()
+	Library:ToggleUI()
+end)
 
 
 local clicking = false
