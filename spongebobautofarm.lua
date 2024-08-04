@@ -173,7 +173,92 @@ end)
 
 
 
+local TweenService = game:GetService("TweenService")
 
+-- Create the GUI elements
+local autoRewards = Window:NewTab("Auto Rewards")
+local autoRewardsSection = autoRewards:NewSection("Teleport to zone collectables.")
+
+-- List of zones
+local zones = {}
+for i = 1, 14 do
+    table.insert(zones, "Zone" .. i)
+end
+
+local selectedZone = nil
+
+-- Create the dropdown
+local zoneDropdown = autoRewardsSection:NewDropdown("Select Zone", "Select the zone to collect items from.", zones, function(value)
+    selectedZone = value
+end)
+
+-- Function to collect all items in the selected zone
+local function collectItemsInZone()
+    if not selectedZone then
+        print("No zone selected!")
+        return
+    end
+
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    local humanoid = character:FindFirstChild("Humanoid")
+
+    -- Anchor the character
+    humanoidRootPart.Anchored = true
+
+    -- Get the selected zone folder
+    local zoneFolder = game:GetService("Workspace").Programmables.Collectibles:FindFirstChild(selectedZone)
+    
+    -- Check if the folder exists
+    if not zoneFolder then
+        print("Selected zone folder not found!")
+        humanoidRootPart.Anchored = false
+        return
+    end
+    
+    -- Function to gather all parts in the zone folder into a list
+    local function gatherAllParts(folder)
+        local partsList = {}
+        
+        for _, item in pairs(folder:GetDescendants()) do
+            if item:IsA("BasePart") then
+                table.insert(partsList, item)
+            end
+        end
+        
+        return partsList
+    end
+
+    -- Function to teleport to all parts in the list
+    local function teleportToParts(partsList)
+        for _, part in pairs(partsList) do
+            -- Teleport to the part
+            humanoidRootPart.CFrame = part.CFrame
+            
+            print("Teleported to: " .. part:GetFullName())
+            
+            -- Wait for 0.3 seconds before next teleport
+            wait(0.3)
+        end
+    end
+
+    print("Gathering all parts in the selected zone folder...")
+    local partsList = gatherAllParts(zoneFolder)
+    print("Total parts found: " .. #partsList)
+    
+    print("Starting teleportation to all parts...")
+    teleportToParts(partsList)
+    print("Finished teleporting to all parts!")
+
+    -- Unanchor the character
+    humanoidRootPart.Anchored = false
+end
+
+-- Create the button
+autoRewardsSection:NewButton("Collect", "Collects all of the items in the selected zone.", function()
+    collectItemsInZone()
+end)
 
 
 
@@ -192,7 +277,8 @@ local quests = {
     ["Knight SpongeBob"] = {"Programmables", "Secrets", "KnightSpongeBobQuest", "Spawners"},
     ["King Neptune"] = {"Programmables", "Secrets", "KingNeptuneQuest", "Spawners"},
     ["GG Rock SpongeBob"] = {"Programmables", "Secrets", "GGRockSpongeBobQuest", "Spawners"},
-    ["Cowboy SpongeBob"] = {"Programmables", "Secrets", "CowboySpongeBobQuest", "Spawners"}
+    ["Cowboy SpongeBob"] = {"Programmables", "Secrets", "CowboySpongeBobQuest", "Spawners"},
+    ["Plankton"] = {"Programmables", "Secrets", "PlanktonQuest", "Spawners"}
 }
 
 -- get foldr
