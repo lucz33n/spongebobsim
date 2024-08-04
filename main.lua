@@ -2,7 +2,7 @@ local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHept
 local Window = Library.CreateLib("Spongebob Simulator Script by Z33N", "DarkTheme")
 
 local Autofarm = Window:NewTab("Autofarm")
-local AutofarmSection = Autofarm:NewSection("Updated: 8/4 11:10")
+local AutofarmSection = Autofarm:NewSection("Updated: 8/4 11:18")
 
 
 
@@ -321,18 +321,17 @@ autoQuestsSection:NewButton("Start Quest", "Collects all of the items for the se
     end
 end)
 
-
--- area rewards
-local autoQuests = Window:NewTab("Auto Quests")
-local autoQuestsSection = autoQuests:NewSection("Will teleport to quest items.")
+-- auto collection stuff
+local autoCollect = Window:NewTab("Auto Zone Collectables")
+local autoCollectSection = autoCollect:NewSection("Will teleport to zone collectables.")
 
 -- Create the button in your GUI
-local collectiblesButton = autoQuestsSection:NewButton("Collect All Items", "Teleports all available items in the current zone to the player", function()
-    collectAllItems()
+local collectiblesButton = autoCollect:NewButton("Collect All Items", "Teleports to all available items in the current zone", function()
+    collectAlldeItems()
 end)
 
 -- Function to collect all items
-function collectAllItems()
+function collectAlldeItems()
     local player = game.Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
@@ -345,6 +344,9 @@ function collectAllItems()
         return
     end
     
+    -- Store original CFrame to return to later
+    local originalCFrame = humanoidRootPart.CFrame
+    
     -- Iterate through all zones (assuming the structure is Collectibles > Zone > Area > Items)
     for _, zone in pairs(collectiblesFolder:GetChildren()) do
         if zone:IsA("Folder") then
@@ -352,13 +354,13 @@ function collectAllItems()
                 if area:IsA("Folder") then
                     for _, item in pairs(area:GetChildren()) do
                         if item:IsA("BasePart") then
-                            -- Teleport the item to the player's position
-                            item.CFrame = humanoidRootPart.CFrame
+                            -- Teleport to the item
+                            humanoidRootPart.CFrame = item.CFrame
                             
-                            print("Teleported: " .. item.Name .. " to player")
+                            print("Teleported to: " .. item.Name)
                             
-                            -- Wait for 0.2 seconds before next teleport
-                            wait(0.2)
+                            -- Wait for 0.8 seconds before next teleport
+                            wait(0.8)
                         end
                     end
                 end
@@ -366,7 +368,10 @@ function collectAllItems()
         end
     end
     
-    print("Finished teleporting all available items to the player!")
+    -- Return to original position
+    humanoidRootPart.CFrame = originalCFrame
+    
+    print("Finished teleporting to all available items!")
 end
 
 
