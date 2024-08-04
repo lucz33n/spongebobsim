@@ -1,25 +1,25 @@
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
 local Window = Library.CreateLib("Spongebob Simulator Script by Z33N", "DarkTheme")
--- Autofarm
+
 local Autofarm = Window:NewTab("Autofarm")
-local AutofarmSection = Autofarm:NewSection("made with love by z33n")
+local AutofarmSection = Autofarm:NewSection("Updated: 8/4 11:40")
 
 
--- Define variables for clicking and teleporting states
+
 local clicking = false
 local teleporting = false
 
--- Path to the Nodes container
+-- path to the Nodes container
 local nodesContainer = game.Workspace:WaitForChild("Nodes")
 local radius = 200
 
--- Function to find the closest node within the specified radius
+-- function to find the closest node within the specified radius
 local function getClosestNode()
     local character = game.Players.LocalPlayer.Character
     if not character or not character:FindFirstChild("HumanoidRootPart") then return nil end
 
     local closestNode = nil
-    local shortestDistance = radius -- Initialize to the search radius
+    local shortestDistance = radius -- initialize to the search radius
 
     for _, node in ipairs(nodesContainer:GetChildren()) do
         if node:IsA("Part") then
@@ -34,7 +34,7 @@ local function getClosestNode()
     return closestNode
 end
 
--- Function to click a node
+-- function to click a node
 local function clickNode(node)
     local args = {
         [1] = node,
@@ -57,7 +57,7 @@ local function startClicking()
             repeat
                 wait(0.1)
             until not closestNode.Parent or not clicking
-            wait(0.1) -- Optional: Wait a short delay before targeting the next node
+            wait(0.1) -- optional: Wait a short delay before targeting the next node
         else
             wait(0.5) -- Check again after a short delay if no node found within radius
         end
@@ -86,23 +86,23 @@ end)
 
 
 local AutoPickupTab = Window:NewTab("Auto Pickup")
-local AutoPickupSection = AutoPickupTab:NewSection("DONT USE MORPHS!!!")
+local AutoPickupSection = AutoPickupTab:NewSection("no morphs if u wanna teleport!!!")
 
 local TweenService = game:GetService("TweenService")
 local autoPicking = false
-local tweenSpeed = 100 -- Default tween speed
-local tweenRadius = 200 -- Default radius for detecting coins
+local tweenSpeed = 100
+local tweenRadius = 200
 
--- Path to the Terrain container
+-- path to the Terrain container
 local terrainContainer = game.Workspace:WaitForChild("Terrain")
 
--- Function to find the closest attachment with the "Currency_" prefix
+-- function to find the closest attachment with the "Currency_" prefix
 local function getClosestAttachment()
     local character = game.Players.LocalPlayer.Character
     if not character or not character:FindFirstChild("HumanoidRootPart") then return nil end
     
     local closestAttachment = nil
-    local shortestDistance = tweenRadius -- Initialize to the search radius
+    local shortestDistance = tweenRadius -- initialize to the search radius
     
     for _, item in ipairs(terrainContainer:GetChildren()) do
         if item:IsA("Attachment") and item.Name:match("Currency_") then
@@ -117,7 +117,7 @@ local function getClosestAttachment()
     return closestAttachment
 end
 
--- Function to tween to a specific position
+-- function to tween to a specific position
 local function tweenToPosition(targetPosition)
     local character = game.Players.LocalPlayer.Character
     if not character or not character:FindFirstChild("HumanoidRootPart") then return end
@@ -170,9 +170,162 @@ AutoPickupSection:NewButton("Stop AutoPickup", "Stop auto picking up closest cur
     stopAutoPicking()
 end)
 
+
+
+
+
+
+
+
+
+
+
+local TweenService = game:GetService("TweenService")
+
+-- area rewards
+local autoQuests = Window:NewTab("Auto Quests")
+local autoQuestsSection = autoQuests:NewSection("Will teleport to quest items.")
+
+-- quest pathz
+local quests = {
+    ["Skeleton SpongeBob"] = {"Programmables", "Secrets", "SkeletonSpongeBobQuest", "Spawners"},
+    ["Knight SpongeBob"] = {"Programmables", "Secrets", "KnightSpongeBobQuest", "Spawners"},
+    ["King Neptune"] = {"Programmables", "Secrets", "KingNeptuneQuest", "Spawners"},
+    ["GG Rock SpongeBob"] = {"Programmables", "Secrets", "GGRockSpongeBobQuest", "Spawners"},
+    ["Cowboy SpongeBob"] = {"Programmables", "Secrets", "CowboySpongeBobQuest", "Spawners"}
+}
+
+-- get foldr
+local function getFolderFromPath(pathArray)
+    local currentFolder = game:GetService("Workspace")
+    for _, folderName in ipairs(pathArray) do
+        currentFolder = currentFolder:FindFirstChild(folderName)
+        if not currentFolder then
+            return nil
+        end
+    end
+    return currentFolder
+end
+
+-- tween (with temporary y unlock)
+local function tweenToSpawner(humanoidRootPart, spawnerCFrame)
+    local tweenInfo = TweenInfo.new(
+        0.5, -- Reduced time for faster movement
+        Enum.EasingStyle.Linear, -- Changed to Linear for smoother motion
+        Enum.EasingDirection.Out
+    )
+    
+    local tween = TweenService:Create(humanoidRootPart, tweenInfo, {CFrame = spawnerCFrame})
+    tween:Play()
+    tween.Completed:Wait() -- yay
+end
+
+-- tiny move plzzzz
+local function smallMovementFixedY(humanoidRootPart, fixedY)
+    local center = humanoidRootPart.Position
+    local radius = 0.3 -- Reduced radius for subtler movement
+    local directions = {
+        Vector3.new(1, 0, 0),
+        Vector3.new(-1, 0, 0),
+        Vector3.new(0, 0, 1),
+        Vector3.new(0, 0, -1)
+    }
+    
+    for _, direction in ipairs(directions) do
+        local newPosition = center + direction * radius
+        newPosition = Vector3.new(newPosition.X, fixedY, newPosition.Z)
+        
+        local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Linear)
+        local tween = TweenService:Create(humanoidRootPart, tweenInfo, {CFrame = CFrame.new(newPosition)})
+        tween:Play()
+        tween.Completed:Wait()
+    end
+end
+
+-- tele func
+local function teleportToSpawners(selectedQuest)
+    if not selectedQuest then
+        print("No quest selected!")
+        return
+    end
+
+    -- get char
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    local humanoid = character:FindFirstChild("Humanoid")
+
+    -- store state
+    local originalWalkSpeed = humanoid.WalkSpeed
+    local originalJumpPower = humanoid.JumpPower
+
+    -- disable movement (for the noobz)
+    humanoid.WalkSpeed = 0
+    humanoid.JumpPower = 0
+
+    -- get folder w/ parts
+    local questPath = quests[selectedQuest]
+    local spawnersFolder = getFolderFromPath(questPath)
+
+    if not spawnersFolder then
+        print("Quest folder not found for: " .. selectedQuest)
+        --restore char state
+        humanoid.WalkSpeed = originalWalkSpeed
+        humanoid.JumpPower = originalJumpPower
+        return
+    end
+
+    print("Teleporting for quest: " .. selectedQuest)
+
+    --loop folder
+    for _, spawner in ipairs(spawnersFolder:GetChildren()) do
+        if spawner:IsA("BasePart") then
+            -- tween (🤤) with Y unlocked
+            tweenToSpawner(humanoidRootPart, spawner.CFrame)
+            print("Tweened to: " .. spawner.Name)
+
+            -- Lock Y for small movements
+            local fixedY = humanoidRootPart.Position.Y
+            -- run this thingy
+            smallMovementFixedY(humanoidRootPart, fixedY)
+
+            -- then wait lets gooo
+            wait(0.1) 
+        end
+    end
+
+    print("Teleportation complete for: " .. selectedQuest)
+
+    -- restore walking
+    humanoid.WalkSpeed = originalWalkSpeed
+    humanoid.JumpPower = originalJumpPower
+end
+
+-- dropdwn
+local questItems = {}
+for questName, _ in pairs(quests) do
+    table.insert(questItems, questName)
+end
+
+local selected = nil
+autoQuestsSection:NewDropdown("Select Quest", "Select the quest to farm.", questItems, function(currentOption)
+    selected = currentOption
+end)
+
+-- buttin
+autoQuestsSection:NewButton("Start Quest", "Collects all of the items for the selected quest.", function()
+    if selected then
+        teleportToSpawners(selected)
+    else
+        print("Please select a quest first!")
+    end
+end)
+
+
+
+-- eggs stuff
 local AutoEggsSection = Window:NewTab("Auto Eggs")
 local AutoEggsSection = AutoEggsSection:NewSection("Will update most likely each new area")
-
 
 -- Create dropdown options for eggs
 local eggOptions = {}
