@@ -2,7 +2,7 @@ local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHept
 local Window = Library.CreateLib("Spongebob Simulator Script by Z33N", "DarkTheme")
 
 local Autofarm = Window:NewTab("Autofarm")
-local AutofarmSection = Autofarm:NewSection("Updated: 8/4 10:44")
+local AutofarmSection = Autofarm:NewSection("Updated: 8/4 11:06")
 
 
 
@@ -322,45 +322,47 @@ autoQuestsSection:NewButton("Start Quest", "Collects all of the items for the se
 end)
 
 
+local TweenService = game:GetService("TweenService")
+
+-- area rewards
+local autoQuests = Window:NewTab("Auto Quests")
+local autoQuestsSection = autoQuests:NewSection("Will teleport to quest items.")
+
 -- Create the button in your GUI
-local collectiblesButton = autoQuestsSection:NewButton("Collect All Items", "Collects all available items in the current zone", function()
+local collectiblesButton = autoQuestsSection:NewButton("Collect All Items", "Teleports to all available items in the current zone", function()
     collectAllItems()
 end)
 
--- Function to collect all items
+-- collect function
 function collectAllItems()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    
     local collectiblesFolder = game:GetService("Workspace").Programmables.Collectibles
     
-    -- Check if the folder exists
+    -- checkingggg
     if not collectiblesFolder then
         print("Collectibles folder not found!")
         return
     end
     
-    -- Iterate through all zones (assuming the structure is Collectibles > Zone > Area > Items)
+    -- store pos
+    local originalCFrame = humanoidRootPart.CFrame
+    
+    -- go through everything
     for _, zone in pairs(collectiblesFolder:GetChildren()) do
         if zone:IsA("Folder") then
             for _, area in pairs(zone:GetChildren()) do
                 if area:IsA("Folder") then
                     for _, item in pairs(area:GetChildren()) do
                         if item:IsA("BasePart") then
-                            -- Attempt to collect the item
-                            local args = {
-                                [1] = item.Name
-                            }
+                            -- tp
+                            humanoidRootPart.CFrame = item.CFrame
                             
-                            local success, result = pcall(function()
-                                return game:GetService("ReplicatedStorage").Knit.Services.CollectibleService.RF.CollectAttempt:InvokeServer(unpack(args))
-                            end)
+                            print("Teleported to: " .. item.Name)
                             
-                            if success then
-                                print("Collected: " .. item.Name)
-                            else
-                                print("Failed to collect: " .. item.Name)
-                            end
-                            
-                            -- Small wait to prevent overloading the server
-                            wait(0.1)
+                            wait(0.2)
                         end
                     end
                 end
@@ -368,7 +370,10 @@ function collectAllItems()
         end
     end
     
-    print("Finished collecting all available items!")
+    -- return og
+    humanoidRootPart.CFrame = originalCFrame
+    
+    print("Finished teleporting to all available items!")
 end
 
 
