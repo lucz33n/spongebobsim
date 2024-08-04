@@ -2,7 +2,7 @@ local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHept
 local Window = Library.CreateLib("Spongebob Simulator Script by Z33N", "DarkTheme")
 
 local Autofarm = Window:NewTab("Autofarm")
-local AutofarmSection = Autofarm:NewSection("Updated: 8/4 10:03")
+local AutofarmSection = Autofarm:NewSection("Updated: 8/4 10:22")
 
 
 
@@ -171,7 +171,6 @@ AutoPickupSection:NewButton("Stop AutoPickup", "Stop auto picking up closest cur
 end)
 
 -- area rewards
--- area rewards
 local autoQuests = Window:NewTab("Auto Quests")
 local autoQuestsSection = autoQuests:NewSection("Will teleport to quest items.")
 
@@ -216,12 +215,17 @@ local function teleportToSpawners(selectedQuest)
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
     local humanoid = character:FindFirstChild("Humanoid")
 
+    -- Temporarily disable gravity
+    humanoidRootPart.Anchored = true
+
     -- Get the folder containing the Parts for the selected quest
     local questPath = quests[selectedQuest]
     local spawnersFolder = getFolderFromPath(questPath)
 
     if not spawnersFolder then
         print("Quest folder not found for: " .. selectedQuest)
+        -- Re-enable gravity
+        humanoidRootPart.Anchored = false
         return
     end
 
@@ -243,6 +247,9 @@ local function teleportToSpawners(selectedQuest)
     end
 
     print("Teleportation complete for: " .. selectedQuest)
+
+    -- Re-enable gravity
+    humanoidRootPart.Anchored = false
 end
 
 -- Create the dropdown
@@ -264,7 +271,6 @@ autoQuestsSection:NewButton("Start Quest", "Collects all of the items for the se
         print("Please select a quest first!")
     end
 end)
-
 
 
 
